@@ -1,0 +1,19 @@
+{
+    "name": "solderbit-segment",
+    "version": "0.0.0",
+    "files": [
+        "main.ts",
+        "solderbitSegment.ts"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ],
+    "dependencies": {
+        "core": "*",
+        "microphone": "*"
+    },
+    "testFiles": [
+        "test.ts"
+    ],
+    "testDependencies": {}
+}
