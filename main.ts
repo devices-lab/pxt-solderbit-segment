@@ -1,3 +1,4 @@
+
 /**
 * Displayable digits for the 8 segment + decimal point VDMO10A0 display.
 * 0 to 9 and the decimal point
@@ -54,7 +55,7 @@ namespace solderbit_segment {
    * This is important because they have different i2c addresses.
    * @param ioExpander component from the IO_Expander enum
    */
-  //% block="initialise solder:bit Segment with $ioExpander IO expander"
+  //% block="initialise Solderbit Segment with $ioExpander IO expander"
   //% blockId=solderbit_segment_init
   //% weight=100
   export function init(ioExpander: IO_Expander): void {
@@ -97,12 +98,9 @@ namespace solderbit_segment {
   * Sequentially display all the digits of the number onto the VDMO10A0 display.
   * Clears the display at the end.
   * Works with floating point values.
-  * @param digit from the Digit enum
   * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
   //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
-  //% num.defl="0.0"
-  //% perDigitWaitTimeMS.defl="1000"
   //% blockId=solderbit_segment_show_number
   //% weight=98
   export function showNumber(num: number | string, perDigitWaitTimeMS: number = 1000): void {
