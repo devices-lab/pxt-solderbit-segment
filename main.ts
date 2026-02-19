@@ -109,15 +109,14 @@ namespace solderbit_segment {
       }
     }
   }
-}
 
-/**
- * Turn all LEDs off on the VDMO10A0 display
- */
-//% block="clear display"
-//% blockId=solderbit_segment_clear
-//% weight=97
-export function clear(): void {
-  i2cSendDataByte(0xFF);
-}
+  /**
+   * Turn all LEDs off on the VDMO10A0 display
+   */
+  //% block="clear display"
+  //% blockId=solderbit_segment_clear
+  //% weight=97
+  export function clear(): void {
+    i2cSendDataByte(0xFF);
+  }
 }
