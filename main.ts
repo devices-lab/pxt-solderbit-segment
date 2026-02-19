@@ -95,7 +95,7 @@ namespace solderbit_segment {
     if (digit < 0 || digit > 9) {
       throw "solderbit_segment.showDigit: digit must be between 0 and 9 inclusive. Use showNumber for longer values."
     } else
-      i2cSendDataByte(digit)
+      i2cSendDataByte(+symbolLookup(""+digit))
   }
 
 
