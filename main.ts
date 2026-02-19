@@ -43,7 +43,7 @@ enum IO_Expander {
 /**
  * solder:bit segment
  */
-//% block="solder:bit Segment" weight=100 color=A0A0A0 icon="\uf10b"
+//% block="solder:bit Segment" weight=100 color=707070 icon="\uf10b"
 namespace solderbit_segment {
   /*
    * Internal lookup function to convert a single digit into the Digit enum.
