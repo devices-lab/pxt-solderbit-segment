@@ -94,12 +94,13 @@ namespace solderbit_segment {
   * @param num can be integer or floating point, with many digits
   * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
-  //% block="show multi-digit number $num waiting %perDigitWaitTimeMS ms between each digit"
+  //% block="show multi-digit number $num"
   //% num.defl=0.0
-  //% perDigitWaitTimeMS.defl=1000
   //% blockId=solderbit_segment_show_number
   //% weight=99
-  export function showNumber(num: number, perDigitWaitTimeMS: number = 1000): void {
+  export function showNumber(num: number, perDigitWaitTimeMS?: number): void {
+
+    perDigitWaitTimeMS = perDigitWaitTimeMS || 1000;
     const numAsString: string = num.toString();
     for (let i = 0; i < numAsString.length; i++) {
       i2cSendDataByte(+symbolLookup(numAsString[i]))
