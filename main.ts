@@ -98,6 +98,7 @@ namespace solderbit_segment {
   * Clears the display at the end.
   * Works with floating point values.
   * @param digit from the Digit enum
+  * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
   //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
   //% blockId=solderbit_segment_show_number
