@@ -94,6 +94,44 @@ namespace solderbit_segment {
   }
 
   /**
+  * Sequentially display all the digits of the number onto the VDMO10A0 display.
+  * Clears the display at the end.
+  * Works with floating point values.
+  * @param digit from the Digit enum
+  */
+  //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
+  //% num.defl="0.0"
+  //% perDigitWaitTimeMS.defl="1000"
+  //% blockId=solderbit_segment_show_number
+  //% weight=98
+  export function showNumber(num: number | string, perDigitWaitTimeMS: number = 1000): void {
+    if (selectedI2CAddr == IO_Expander.NONE) {
+      throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
+    } else {
+      const numAsString: string = (typeof num == "number") ? num.toString() : num;
+      for (let i = 0; i < numAsString.length; i++) {
+        pins.i2cWriteNumber(
+          selectedI2CAddr,
+          +digitLookup(numAsString[i]),
+          NumberFormat.Int8LE,
+          false
+        )
+
+        // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
+        const offFlashTimeMS = 250;
+        if (perDigitWaitTimeMS <= offFlashTimeMS) {
+          basic.pause(perDigitWaitTimeMS)
+        } else { // Turn the display off for offFlashTimeMS
+          basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
+          clear();
+          basic.pause(offFlashTimeMS)
+        }
+      }
+    }
+    clear();
+  }
+
+  /**
    * Turn all LEDs off on the VDMO10A0 display
    */
   //% block="Clear display"
