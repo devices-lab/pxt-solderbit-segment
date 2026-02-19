@@ -34,8 +34,6 @@ enum Digit {
 * Otherwise you will get an error since IO_Expander.NONE will is used by default.
 */
 enum IO_Expander {
-  //% block="NONE"
-  NONE,
   //% block="PCF8574AT"
   PCF8574AT = 0x38,
   //% block="PCF8574N"
@@ -47,30 +45,6 @@ enum IO_Expander {
  */
 //% block="solder:bit Segment" weight=100 color=#000000 icon="\uf10b"
 namespace solderbit_segment {
-  let selectedI2CAddr: IO_Expander = IO_Expander.NONE;
-
-  /**
-   * You must invoke this before using show or clear.
-   * Which IO_Expander are you using?
-   * This is important because they have different i2c addresses.
-   * @param ioExpander component from the IO_Expander enum
-   */
-  //% block="initialise Solderbit Segment with $ioExpander IO expander"
-  //% blockId=solderbit_segment_init
-  //% weight=100
-  export function init(ioExpander: IO_Expander): void {
-    selectedI2CAddr = ioExpander;
-    // Set all 8 pins of the IO Expander to output.
-    // This isn't strictly necessary in our case.
-    pins.i2cWriteNumber(
-      selectedI2CAddr,
-      0b00000000,
-      NumberFormat.Int8LE,
-      false
-    )
-    clear();
-  }
-
   /*
    * Internal lookup function to convert a single digit into the Digit enum.
    * Unfortunately this switch is the best way to do this on account of STS enum constraints.
@@ -94,6 +68,17 @@ namespace solderbit_segment {
     }
   }
 
+  function i2cSendDataByte(data: number) {
+    [IO_Expander.PCF8574AT, IO_Expander.PCF8574N].forEach(i2cAddr =>
+      pins.i2cWriteNumber(
+        i2cAddr,
+        data,
+        NumberFormat.Int8LE,
+        false
+      )
+    )
+  }
+
   /**
   * Sequentially display all the digits of the number onto the VDMO10A0 display.
   * Clears the display at the end.
@@ -106,27 +91,18 @@ namespace solderbit_segment {
   //% blockId=solderbit_segment_show_number
   //% weight=98
   export function showNumber(num: number, perDigitWaitTimeMS: number = 1000): void {
-    if (selectedI2CAddr == IO_Expander.NONE) {
-      throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
-    } else {
-      const numAsString: string = num.toString();
-      for (let i = 0; i < numAsString.length; i++) {
-        pins.i2cWriteNumber(
-          selectedI2CAddr,
-          +digitLookup(numAsString[i]),
-          NumberFormat.Int8LE,
-          false
-        )
+    const numAsString: string = num.toString();
+    for (let i = 0; i < numAsString.length; i++) {
+      i2cSendDataByte(+digitLookup(numAsString[i]))
 
-        // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
-        const offFlashTimeMS = 250;
-        if (perDigitWaitTimeMS <= offFlashTimeMS) {
-          basic.pause(perDigitWaitTimeMS)
-        } else { // Turn the display off for offFlashTimeMS
-          basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
-          clear();
-          basic.pause(offFlashTimeMS)
-        }
+      // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
+      const offFlashTimeMS = 250;
+      if (perDigitWaitTimeMS <= offFlashTimeMS) {
+        basic.pause(perDigitWaitTimeMS)
+      } else { // Turn the display off for offFlashTimeMS
+        basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
+        clear();
+        basic.pause(offFlashTimeMS)
       }
     }
   }
@@ -134,20 +110,10 @@ namespace solderbit_segment {
   /**
    * Turn all LEDs off on the VDMO10A0 display
    */
-  //% block="Clear display"
+  //% block="clear display"
   //% blockId=solderbit_segment_clear
   //% weight=97
   export function clear(): void {
-    if (selectedI2CAddr == IO_Expander.NONE) {
-      throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
-    } else {
-      pins.i2cWriteNumber(
-        selectedI2CAddr,
-        0xFF,                   // 0xFF to clear all.
-        NumberFormat.Int8LE,
-        false
-      )
-      basic.pause(0)
-    }
+    i2cSendDataByte(0xFF);
   }
 }

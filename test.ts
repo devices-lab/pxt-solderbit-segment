@@ -77,7 +77,6 @@ namespace __solderbit_segment_tests {
     basic.showString("T2E")
   }
 
-  solderbit_segment.init(SOLDERBIT_SEGMENT_IO_EXPANDER)
   const tests = [test1, test2]
   tests.forEach(test => test())
 }
