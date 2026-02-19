@@ -1,4 +1,3 @@
-
 /**
 * Displayable digits for the 8 segment + decimal point VDMO10A0 display.
 * 0 to 9 and the decimal point
@@ -45,7 +44,7 @@ enum IO_Expander {
 /**
  * solder:bit segment
  */
-//% block="solderbit Segment" weight=100 color=#000000 icon="\uf10b"
+//% block="solder:bit Segment" weight=100 color=#000000 icon="\uf10b"
 namespace solderbit_segment {
   let selectedI2CAddr: IO_Expander = IO_Expander.NONE;
 
@@ -55,7 +54,9 @@ namespace solderbit_segment {
    * This is important because they have different i2c addresses.
    * @param ioExpander component from the IO_Expander enum
    */
-  //% block
+  //% block="initialise solder:bit Segment with $ioExpander IO expander"
+  //% blockId=solderbit_segment_init
+  //% weight=100
   export function init(ioExpander: IO_Expander): void {
     selectedI2CAddr = ioExpander;
     // Set all 8 pins of the IO Expander to output.
@@ -66,7 +67,7 @@ namespace solderbit_segment {
       NumberFormat.Int8LE,
       false
     )
-    // clear();
+    clear();
   }
 
   /*
@@ -92,5 +93,61 @@ namespace solderbit_segment {
     }
   }
 
+  /**
+  * Sequentially display all the digits of the number onto the VDMO10A0 display.
+  * Clears the display at the end.
+  * Works with floating point values.
+  * @param digit from the Digit enum
+  */
+  //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
+  //% num.defl="0.0"
+  //% perDigitWaitTimeMS.defl="1000"
+  //% blockId=solderbit_segment_show_number
+  //% weight=98
+  export function showNumber(num: number | string, perDigitWaitTimeMS: number = 1000): void {
+    if (selectedI2CAddr == IO_Expander.NONE) {
+      throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
+    } else {
+      const numAsString: string = (typeof num == "number") ? num.toString() : num;
+      for (let i = 0; i < numAsString.length; i++) {
+        pins.i2cWriteNumber(
+          selectedI2CAddr,
+          +digitLookup(numAsString[i]),
+          NumberFormat.Int8LE,
+          false
+        )
 
+        // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
+        const offFlashTimeMS = 250;
+        if (perDigitWaitTimeMS <= offFlashTimeMS) {
+          basic.pause(perDigitWaitTimeMS)
+        } else { // Turn the display off for offFlashTimeMS
+          basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
+          clear();
+          basic.pause(offFlashTimeMS)
+        }
+      }
+    }
+    clear();
+  }
+
+  /**
+   * Turn all LEDs off on the VDMO10A0 display
+   */
+  //% block="Clear display"
+  //% blockId=solderbit_segment_clear
+  //% weight=97
+  export function clear(): void {
+    if (selectedI2CAddr == IO_Expander.NONE) {
+      throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
+    } else {
+      pins.i2cWriteNumber(
+        selectedI2CAddr,
+        0xFF,                   // 0xFF to clear all.
+        NumberFormat.Int8LE,
+        false
+      )
+      basic.pause(0)
+    }
+  }
 }
