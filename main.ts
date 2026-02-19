@@ -51,19 +51,19 @@ namespace solderbit_segment {
    * Used by show_number
    * @throws error if single_digit_num is not a single digit.
    */
-  function digitLookup(single_digit_num: string): Digit {
+  function symbolLookup(single_digit_num: string): DisplayableSymbols {
     switch (single_digit_num) {
-      case "0": return Digit.Zero;
-      case "1": return Digit.One;
-      case "2": return Digit.Two;
-      case "3": return Digit.Three;
-      case "4": return Digit.Four;
-      case "5": return Digit.Five;
-      case "6": return Digit.Six;
-      case "7": return Digit.Seven;
-      case "8": return Digit.Eight;
-      case "9": return Digit.Nine;
-      case ".": return Digit.Point;
+      case "0": return DisplayableSymbols.Zero;
+      case "1": return DisplayableSymbols.One;
+      case "2": return DisplayableSymbols.Two;
+      case "3": return DisplayableSymbols.Three;
+      case "4": return DisplayableSymbols.Four;
+      case "5": return DisplayableSymbols.Five;
+      case "6": return DisplayableSymbols.Six;
+      case "7": return DisplayableSymbols.Seven;
+      case "8": return DisplayableSymbols.Eight;
+      case "9": return DisplayableSymbols.Nine;
+      case ".": return DisplayableSymbols.Point;
       default: throw "solderbit_segment internal fn digit_lookup: error parsing single digit " + single_digit_num
     }
   }
@@ -113,7 +113,7 @@ namespace solderbit_segment {
   export function showNumber(num: number, perDigitWaitTimeMS: number = 1000): void {
     const numAsString: string = num.toString();
     for (let i = 0; i < numAsString.length; i++) {
-      i2cSendDataByte(+digitLookup(numAsString[i]))
+      i2cSendDataByte(+symbolLookup(numAsString[i]))
 
       // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
       const offFlashTimeMS = 250;
