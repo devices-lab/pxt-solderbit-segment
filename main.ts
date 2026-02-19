@@ -43,7 +43,7 @@ enum IO_Expander {
 /**
  * solder:bit segment
  */
-//% block="solder:bit Segment" weight=100 color=#000000 icon="\uf10b"
+//% block="solder:bit Segment" weight=100 color=A9A9A9 icon="\uf10b"
 namespace solderbit_segment {
   /*
    * Internal lookup function to convert a single digit into the Digit enum.
@@ -87,7 +87,7 @@ namespace solderbit_segment {
   * @param digit from the Digit enum
   * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
-  //% block="show a single digit &digit"
+  //% block="show a single digit $digit"
   //% digit.defl=0
   //% blockId=solderbit_segment_show_digit
   //% weight=100
