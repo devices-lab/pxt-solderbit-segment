@@ -102,7 +102,6 @@ namespace solderbit_segment {
   * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
   //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
-  //% num.defl="0.0"
   //% perDigitWaitTimeMS.defl=1000
   //% blockId=solderbit_segment_show_number
   //% weight=98
