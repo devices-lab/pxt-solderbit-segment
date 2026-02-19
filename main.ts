@@ -101,19 +101,23 @@ namespace solderbit_segment {
         basic.pause(perDigitWaitTimeMS)
       } else { // Turn the display off for offFlashTimeMS
         basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
-        clear();
+
+        if (numAsString.length > 1) {
+          clear();
+        }
         basic.pause(offFlashTimeMS)
       }
     }
   }
+}
 
-  /**
-   * Turn all LEDs off on the VDMO10A0 display
-   */
-  //% block="clear display"
-  //% blockId=solderbit_segment_clear
-  //% weight=97
-  export function clear(): void {
-    i2cSendDataByte(0xFF);
-  }
+/**
+ * Turn all LEDs off on the VDMO10A0 display
+ */
+//% block="clear display"
+//% blockId=solderbit_segment_clear
+//% weight=97
+export function clear(): void {
+  i2cSendDataByte(0xFF);
+}
 }
