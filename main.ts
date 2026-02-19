@@ -3,7 +3,7 @@
 * Displayable digits for the 8 segment + decimal point VDMO10A0 display.
 * 0 to 9 and the decimal point
 */
-enum Digit {
+enum DisplayableSymbols {
   Zero = 0xC0,        // 0: A B C D E F on, G off
   //% block="one"
   One = 0xF9,         // 1: B C on
@@ -79,6 +79,26 @@ namespace solderbit_segment {
     )
   }
 
+
+  /**
+  * Sequentially display all the digits of the number onto the VDMO10A0 display.
+  * Clears the display at the end.
+  * Works with floating point values.
+  * @param digit from the Digit enum
+  * @param perDigitWaitTimeMS between each digit; ideally >250ms
+  */
+  //% block="show a single digit &digit"
+  //% digit.defl=0
+  //% blockId=solderbit_segment_show_digit
+  //% weight=100
+  export function showDigit(digit: number): void {
+    if (digit < 0 || digit > 9) {
+      throw "solderbit_segment.showDigit: digit must be between 0 and 9 inclusive. Use showNumber for longer values."
+    } else
+      i2cSendDataByte(digit)
+  }
+
+
   /**
   * Sequentially display all the digits of the number onto the VDMO10A0 display.
   * Clears the display at the end.
@@ -89,7 +109,7 @@ namespace solderbit_segment {
   //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
   //% perDigitWaitTimeMS.defl=1000
   //% blockId=solderbit_segment_show_number
-  //% weight=98
+  //% weight=99
   export function showNumber(num: number, perDigitWaitTimeMS: number = 1000): void {
     const numAsString: string = num.toString();
     for (let i = 0; i < numAsString.length; i++) {
@@ -115,7 +135,7 @@ namespace solderbit_segment {
    */
   //% block="clear display"
   //% blockId=solderbit_segment_clear
-  //% weight=97
+  //% weight=98
   export function clear(): void {
     i2cSendDataByte(0xFF);
   }
