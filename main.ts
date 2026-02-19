@@ -5,26 +5,17 @@
 */
 enum DisplayableSymbols {
   Zero = 0xC0,        // 0: A B C D E F on, G off
-  //% block="one"
   One = 0xF9,         // 1: B C on
-  //% block="two"
   Two = 0xA4,         // 2: A B D E G on
-  //% block="three"
   Three = 0xB0,       // 3: A B C D G on
-  //% block="four"
   Four = 0x99,        // 4: B C F G on
-  //% block="five"
   Five = 0x92,        // 5: A C D F G on
-  //% block="six"
   Six = 0x82,         // 6: A C D E F G on
-  //% block="seven"
   Seven = 0xF8,       // 7: A B C on
-  //% block="eight"
   Eight = 0x80,       // 8: all segments on (except D.P)
-  //% block="nine"
-  Nine = 0x90,        // 9: A B C D F G onxq
-  //% block="decimal point"
-  Point = 0x7F        // .: A B C D E F G off, D.P. on
+  Nine = 0x90,        // 9: A B C D F G on
+  Point = 0x7F,       // .: A B C D E F G off, D.P. on
+  Minus = 0xBF        // .: A B C D E F G off, D.P. on
 }
 
 /**
@@ -34,9 +25,7 @@ enum DisplayableSymbols {
 * Otherwise you will get an error since IO_Expander.NONE will is used by default.
 */
 enum IO_Expander {
-  //% block="PCF8574AT"
   PCF8574AT = 0x38,
-  //% block="PCF8574N"
   PCF8574N = 0x20
 }
 
@@ -64,6 +53,7 @@ namespace solderbit_segment {
       case "8": return DisplayableSymbols.Eight;
       case "9": return DisplayableSymbols.Nine;
       case ".": return DisplayableSymbols.Point;
+      case "-": return DisplayableSymbols.Minus;
       default: throw "solderbit_segment internal fn digit_lookup: error parsing single digit " + single_digit_num
     }
   }
@@ -101,13 +91,11 @@ namespace solderbit_segment {
 
   /**
   * Sequentially display all the digits of the number onto the VDMO10A0 display.
-  * Clears the display at the end.
-  * Works with floating point values.
-  * @param digit from the Digit enum
+  * @param num can be integer or floating point, with many digits
   * @param perDigitWaitTimeMS between each digit; ideally >250ms
   */
   //% block="show multi-digit number $num waiting %perDigitWaitTimeMS ms between each digit"
-  //% num.defl=0
+  //% num.defl=0.0
   //% perDigitWaitTimeMS.defl=1000
   //% blockId=solderbit_segment_show_number
   //% weight=99
