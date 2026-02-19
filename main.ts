@@ -109,9 +109,9 @@ namespace solderbit_segment {
       if (perDigitWaitTimeMS <= offFlashTimeMS) {
         basic.pause(perDigitWaitTimeMS)
       } else { // Turn the display off for offFlashTimeMS
-        basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
+        basic.pause(perDigitWaitTimeMS - offFlashTimeMS)
 
-        if (i != numAsString.length - 1) {
+        if (i == numAsString.length - 1) {
           clear();
         }
         basic.pause(offFlashTimeMS)
