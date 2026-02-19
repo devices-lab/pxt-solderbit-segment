@@ -105,11 +105,11 @@ namespace solderbit_segment {
   //% perDigitWaitTimeMS.defl=1000
   //% blockId=solderbit_segment_show_number
   //% weight=98
-  export function showNumber(num: number | string, perDigitWaitTimeMS: number = 1000): void {
+  export function showNumber(num: number, perDigitWaitTimeMS: number = 1000): void {
     if (selectedI2CAddr == IO_Expander.NONE) {
       throw "solderbit_segment: You haven't selected an IO_Expander and ensure it is not NONE. Please invoke solderbit_segment.init(IO_Expander)."
     } else {
-      const numAsString: string = (typeof num == "number") ? num.toString() : num;
+      const numAsString: string = num.toString();
       for (let i = 0; i < numAsString.length; i++) {
         pins.i2cWriteNumber(
           selectedI2CAddr,

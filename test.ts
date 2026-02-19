@@ -31,7 +31,7 @@ namespace __solderbit_segment_tests {
     solderbit_segment.clear()
 
     basic.showNumber(4)
-    solderbit_segment.showNumber("4")
+    solderbit_segment.showNumber(4)
 
     basic.clearScreen()
     solderbit_segment.clear()
