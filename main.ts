@@ -100,8 +100,6 @@ namespace solderbit_segment {
   * @param digit from the Digit enum
   */
   //% block="show $num waiting %perDigitWaitTimeMS ms between each digit"
-  //% num.defl="0.0"
-  //% perDigitWaitTimeMS.defl="1000"
   //% blockId=solderbit_segment_show_number
   //% weight=98
   export function showNumber(num: number | string, perDigitWaitTimeMS: number = 1000): void {
