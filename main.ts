@@ -118,17 +118,14 @@ namespace solderbit_segment {
           false
         )
 
-        // Don't wait if it's  single digit:
-        if (numAsString.length > 1) {
-          // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
-          const offFlashTimeMS = 250;
-          if (perDigitWaitTimeMS <= offFlashTimeMS) {
-            basic.pause(perDigitWaitTimeMS)
-          } else { // Turn the display off for offFlashTimeMS
-            basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
-            clear();
-            basic.pause(offFlashTimeMS)
-          }
+        // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
+        const offFlashTimeMS = 250;
+        if (perDigitWaitTimeMS <= offFlashTimeMS) {
+          basic.pause(perDigitWaitTimeMS)
+        } else { // Turn the display off for offFlashTimeMS
+          basic.pause(Math.max(perDigitWaitTimeMS - offFlashTimeMS, offFlashTimeMS))
+          clear();
+          basic.pause(offFlashTimeMS)
         }
       }
     }
