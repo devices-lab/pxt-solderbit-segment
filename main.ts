@@ -129,7 +129,6 @@ namespace solderbit_segment {
         }
       }
     }
-    clear();
   }
 
   /**
