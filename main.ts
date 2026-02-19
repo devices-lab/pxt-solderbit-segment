@@ -29,17 +29,17 @@ enum Digit {
 
 /**
 * Which IO Expander is soldered down?
-* The SO-16 PCF8754AT (has I2C address 0x20) or the DIP-16 PCF8754N (has I2C address 0x18)?
+* The SO-16 PCF8574AT (has I2C address 0x20) or the DIP-16 PCF8574N (has I2C address 0x18)?
 * You must invoke solderbit_segment.setup(IO_Expander) with your config to use this extension.
 * Otherwise you will get an error since IO_Expander.NONE will is used by default.
 */
 enum IO_Expander {
   //% block="NONE"
   NONE,
-  //% block="PCF8754AT"
-  PCF8754AT = 0x20,
-  //% block="PCF8754N"
-  PCF8754N = 0x38,
+  //% block="PCF8574AT"
+  PCF8574AT = 0x38,
+  //% block="PCF8574N"
+  PCF8574N = 0x20
 }
 
 /**

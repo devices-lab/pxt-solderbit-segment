@@ -12,7 +12,7 @@ namespace __solderbit_segment_tests {
   /**
    * MAKE SURE TO SET THIS TO YOUR CORRECT IO_Expander
    */
-  const SOLDERBIT_SEGMENT_IO_EXPANDER: IO_Expander = IO_Expander.PCF8754N;
+  const SOLDERBIT_SEGMENT_IO_EXPANDER: IO_Expander = IO_Expander.PCF8574N;
 
   /**
    * Test the clear function
