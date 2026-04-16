@@ -21,8 +21,8 @@ namespace solderbit_segment {
         ["7"] : {bitsForSymbol: 0xF8},
         ["8"] : {bitsForSymbol: 0x80},
         ["9"] : {bitsForSymbol: 0x90},
-        ["-"] : {bitsForSymbol: 0x7F},
-        ["."] : {bitsForSymbol: 0xBF},
+        ["-"] : {bitsForSymbol: 0xBF},
+        ["."] : {bitsForSymbol: 0x7F},
         [""] :  {bitsForSymbol: 0xFF}
     };
 
@@ -37,8 +37,8 @@ namespace solderbit_segment {
         ["7"] : {bitsForSymbol: 0b11100000},
         ["8"] : {bitsForSymbol: 0b11111110},
         ["9"] : {bitsForSymbol: 0b11110110},
-        ["-"] : {bitsForSymbol: 0b00000001},
-        ["."] : {bitsForSymbol: 0b00000010},
+        ["-"] : {bitsForSymbol: 0b00000010},
+        ["."] : {bitsForSymbol: 0b00000001},
         [""] :  {bitsForSymbol: 0b00000000}
     };
 
@@ -98,7 +98,6 @@ namespace solderbit_segment {
         const numAsString: string = num.toString();
         for (let i = 0; i < numAsString.length; i++) {
             sendSymbol(numAsString[i])
-
             // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
             const offFlashTimeMS = 250;
             if (perDigitWaitTimeMS <= offFlashTimeMS) {
