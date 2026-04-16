@@ -1,132 +1,126 @@
-
-/**
-* Displayable digits for the 8 segment + decimal point VDMO10A0 display.
-* 0 to 9 and the decimal point
-*/
-enum DisplayableSymbols {
-  Zero = 0xC0,        // 0: A B C D E F on, G off
-  One = 0xF9,         // 1: B C on
-  Two = 0xA4,         // 2: A B D E G on
-  Three = 0xB0,       // 3: A B C D G on
-  Four = 0x99,        // 4: B C F G on
-  Five = 0x92,        // 5: A C D F G on
-  Six = 0x82,         // 6: A C D E F G on
-  Seven = 0xF8,       // 7: A B C on
-  Eight = 0x80,       // 8: all segments on (except D.P)
-  Nine = 0x90,        // 9: A B C D F G on
-  Point = 0x7F,       // .: A B C D E F G off, D.P. on
-  Minus = 0xBF        // .: A B C D E F G off, D.P. on
-}
-
-/**
-* Which IO Expander is soldered down?
-* The SO-16 PCF8574AT (has I2C address 0x20) or the DIP-16 PCF8574N (has I2C address 0x18)?
-* You must invoke solderbit_segment.setup(IO_Expander) with your config to use this extension.
-* Otherwise you will get an error since IO_Expander.NONE will is used by default.
-*/
-enum IO_Expander {
-  PCF8574AT = 0x38,
-  PCF8574N = 0x20
-}
-
 /**
  * solder:bit segment
  */
 //% block="solder:bit Segment" weight=100 color=#000000 icon="\uf10b"
 namespace solderbit_segment {
-  /*
-   * Internal lookup function to convert a single digit into the Digit enum.
-   * Unfortunately this switch is the best way to do this on account of STS enum constraints.
-   * Used by show_number
-   * @throws error if single_digit_num is not a single digit.
-   */
-  function symbolLookup(single_digit_num: string): DisplayableSymbols {
-    switch (single_digit_num) {
-      case "0": return DisplayableSymbols.Zero;
-      case "1": return DisplayableSymbols.One;
-      case "2": return DisplayableSymbols.Two;
-      case "3": return DisplayableSymbols.Three;
-      case "4": return DisplayableSymbols.Four;
-      case "5": return DisplayableSymbols.Five;
-      case "6": return DisplayableSymbols.Six;
-      case "7": return DisplayableSymbols.Seven;
-      case "8": return DisplayableSymbols.Eight;
-      case "9": return DisplayableSymbols.Nine;
-      case ".": return DisplayableSymbols.Point;
-      case "-": return DisplayableSymbols.Minus;
-      default: throw "solderbit_segment internal fn digit_lookup: error parsing single digit " + single_digit_num
-    }
-  }
+    const PCF8574AT_I2C_ADDR: number = 0x38;
+    const PCF8574N_I2C_ADDR: number = 0x20;
 
-  function i2cSendDataByte(data: number) {
-    [IO_Expander.PCF8574AT, IO_Expander.PCF8574N].forEach(i2cAddr =>
-      pins.i2cWriteNumber(
-        i2cAddr,
-        data,
-        NumberFormat.Int8LE,
-        false
-      )
-    )
-  }
+    const NXP_74HC595_DATA_PIN: DigitalPin = DigitalPin.P0;
+    const NXP_74HC595_CLOCK_PIN: DigitalPin = DigitalPin.P1;
+    const NXP_74HC595_LATCH_PIN: DigitalPin = DigitalPin.P2;
+    
+    const i2cBasedSymbolToPinsMap: {[id: string]: {bitsForSymbol: number}} = {
+        ["0"] : {bitsForSymbol: 0xC0},
+        ["1"] : {bitsForSymbol: 0xF9},
+        ["2"] : {bitsForSymbol: 0xA4},
+        ["3"] : {bitsForSymbol: 0xB0},
+        ["4"] : {bitsForSymbol: 0x99},
+        ["5"] : {bitsForSymbol: 0x92},
+        ["6"] : {bitsForSymbol: 0x82},
+        ["7"] : {bitsForSymbol: 0xF8},
+        ["8"] : {bitsForSymbol: 0x80},
+        ["9"] : {bitsForSymbol: 0x90},
+        ["-"] : {bitsForSymbol: 0x7F},
+        ["."] : {bitsForSymbol: 0xBF},
+        [""] :  {bitsForSymbol: 0xFF}
+    };
 
+    const shiftBasedSymbolToPinsMap: {[id: string]: {bitsForSymbol: number}} = {
+        ["0"] : {bitsForSymbol: 0b11111100},
+        ["1"] : {bitsForSymbol: 0b01100000},
+        ["2"] : {bitsForSymbol: 0b11011010},
+        ["3"] : {bitsForSymbol: 0b11110010},
+        ["4"] : {bitsForSymbol: 0b01100110},
+        ["5"] : {bitsForSymbol: 0b10110110},
+        ["6"] : {bitsForSymbol: 0b10111110},
+        ["7"] : {bitsForSymbol: 0b11100000},
+        ["8"] : {bitsForSymbol: 0b11111110},
+        ["9"] : {bitsForSymbol: 0b11110110},
+        ["-"] : {bitsForSymbol: 0b00000001},
+        ["."] : {bitsForSymbol: 0b00000010},
+        [""] :  {bitsForSymbol: 0b00000000}
+    };
 
-  /**
-  * Sequentially display all the digits of the number onto the VDMO10A0 display.
-  * Clears the display at the end.
-  * Works with floating point values.
-  * @param digit from the Digit enum
-  * @param perDigitWaitTimeMS between each digit; ideally >250ms
-  */
-  //% block="show a single digit $digit"
-  //% digit.defl=0
-  //% blockId=solderbit_segment_show_digit
-  //% weight=100
-  export function showDigit(digit: number): void {
-    if (digit < 0 || digit > 9) {
-      throw "solderbit_segment.showDigit: digit must be between 0 and 9 inclusive. Use showNumber for longer values."
-    } else
-      i2cSendDataByte(+symbolLookup(""+digit))
-  }
+    function sendSymbol(symbolToLookup: string) {
+        // I2C:
+        [PCF8574AT_I2C_ADDR, PCF8574N_I2C_ADDR].forEach(i2cAddr =>
+            pins.i2cWriteNumber(
+                i2cAddr,
+                i2cBasedSymbolToPinsMap[symbolToLookup].bitsForSymbol,
+                NumberFormat.Int8LE,
+                false
+            )
+        )
 
-
-  /**
-  * Sequentially display all the digits of the number onto the VDMO10A0 display.
-  * @param num can be integer or floating point, with many digits
-  * @param perDigitWaitTimeMS between each digit; ideally >250ms
-  */
-  //% block="show multi-digit number $num"
-  //% num.defl=0.0
-  //% blockId=solderbit_segment_show_number
-  //% weight=99
-  export function showNumber(num: number, perDigitWaitTimeMS?: number): void {
-
-    perDigitWaitTimeMS = perDigitWaitTimeMS || 1000;
-    const numAsString: string = num.toString();
-    for (let i = 0; i < numAsString.length; i++) {
-      i2cSendDataByte(+symbolLookup(numAsString[i]))
-
-      // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
-      const offFlashTimeMS = 250;
-      if (perDigitWaitTimeMS <= offFlashTimeMS) {
-        basic.pause(perDigitWaitTimeMS)
-      } else { // Turn the display off for offFlashTimeMS
-        basic.pause(perDigitWaitTimeMS - offFlashTimeMS)
-
-        if (i == numAsString.length - 1) {
-          clear();
+        // Shift register:
+        const bits: number = shiftBasedSymbolToPinsMap[symbolToLookup].bitsForSymbol;
+        pins.digitalWritePin(NXP_74HC595_LATCH_PIN, 0)
+        for (let i = 0; i < 8; i++) {
+            pins.digitalWritePin(NXP_74HC595_DATA_PIN, (bits & (1 << i)))
+            pins.digitalWritePin(NXP_74HC595_CLOCK_PIN, 1)
+            pins.digitalWritePin(NXP_74HC595_CLOCK_PIN, 0)
         }
-        basic.pause(offFlashTimeMS)
-      }
-    }
-  }
+        pins.digitalWritePin(NXP_74HC595_LATCH_PIN, 1)
+    };
 
-  /**
-   * Turn all LEDs off on the VDMO10A0 display
-   */
-  //% block="clear display"
-  //% blockId=solderbit_segment_clear
-  //% weight=98
-  export function clear(): void {
-    i2cSendDataByte(0xFF);
-  }
+    /**
+     * Sequentially display all the digits of the number onto the VDMO10A0 display.
+    * Clears the display at the end.
+    * Works with floating point values.
+    * @param digit from the Digit enum
+    * @param perDigitWaitTimeMS between each digit; ideally >250ms
+    */
+    //% block="show a single digit $digit"
+    //% digit.defl=0
+    //% blockId=solderbit_segment_show_digit
+    //% weight=100
+    export function showDigit(digit: number): void {
+        if (digit < 0 || digit > 9) {
+            throw "solderbit_segment.showDigit: digit must be between 0 and 9 inclusive. Use showNumber for longer values."
+        } else {
+            sendSymbol(""+digit)
+        }
+    }
+
+
+    /**
+     * Sequentially display all the digits of the number onto the VDMO10A0 display.
+    * @param num can be integer or floating point, with many digits
+    * @param perDigitWaitTimeMS between each digit; ideally >250ms
+    */
+    //% block="show multi-digit number $num"
+    //% num.defl=0.0
+    //% blockId=solderbit_segment_show_number
+    //% weight=99
+    export function showNumber(num: number, perDigitWaitTimeMS?: number): void {
+        perDigitWaitTimeMS = perDigitWaitTimeMS || 1000;
+        const numAsString: string = num.toString();
+        for (let i = 0; i < numAsString.length; i++) {
+            sendSymbol(numAsString[i])
+
+            // Don't do the 'turn display off briefly effect' if perDigitWaitTimeMS is too low
+            const offFlashTimeMS = 250;
+            if (perDigitWaitTimeMS <= offFlashTimeMS) {
+                basic.pause(perDigitWaitTimeMS)
+            } else { // Turn the display off for offFlashTimeMS
+                basic.pause(perDigitWaitTimeMS - offFlashTimeMS)
+
+                if (i == numAsString.length - 1) {
+                    clear();
+                }
+                basic.pause(offFlashTimeMS)
+            }
+        }
+    }
+
+    /**
+     * Turn all LEDs off on the VDMO10A0 display
+     */
+    //% block="clear display"
+    //% blockId=solderbit_segment_clear
+    //% weight=98
+    export function clear(): void {
+        sendSymbol("");
+    }
 }
