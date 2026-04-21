@@ -15,14 +15,6 @@
 
 ![Selecting the extension in MakeCode](/guide/solderbit-segment-search.png)
 
-## Editing this extension in Makecode
-
-You may edit or remix this project directly in MakeCode.
-
-1. Open [MakeCode](https://makecode.microbit.org/).
-2. Click on `Import` then click on `Import URL`.
-3. Paste `https://github.com/devices-lab/pxt-solderbit-segment` and click import.
-
 ## Connecting your device
 
 ### solder:bit Segment
@@ -50,7 +42,15 @@ Connect the device to the micro:bit using the following pinout:
 | SHCP                               | P1            |
 | DS                                 | P0            |
 
+## Editing this extension in Makecode
+
+You may edit or remix this project directly in MakeCode.
+
+1. Open [MakeCode](https://makecode.microbit.org/).
+2. Click on `Import` then click on `Import URL`.
+3. Paste `https://github.com/devices-lab/pxt-solderbit-segment` and click import.
+
 #### Metadata (used for search, rendering)
 
 - for PXT/microbit
-      <script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+  <script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
